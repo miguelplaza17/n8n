@@ -68,3 +68,16 @@ RUN \
 ENV SHELL /bin/sh
 USER node
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
+
+# Usa a imagem oficial do n8n como base
+FROM n8nio/n8n:latest
+
+# Instala o Universal Ctags (baseado em Ubuntu/Debian, que é a base da imagem n8n)
+RUN apt-get update && apt-get install -y universal-ctags
+
+# Adiciona suporte personalizado para Clipper
+RUN mkdir -p /root/.ctags.d
+RUN echo "--langdef=Clipper\n--langmap=Clipper:.prg\n--regex-Clipper=/^[ \t]*(FUNCTION|PROCEDURE)[ \t]+([a-zA-Z0-9_]+)/\2/f/" > /root/.ctags.d/clipper.ctags
+
+# Limpa o cache do apt para reduzir o tamanho da imagem
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
